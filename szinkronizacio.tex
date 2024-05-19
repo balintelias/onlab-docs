@@ -1,0 +1,126 @@
+\chapter{Szinkronizáció 5G NR rendszerekben}
+
+\section{Szinkronizációs jelek}
+
+\subsection{Primary Synchronization Signal}
+
+5G NR hálózatokban az elsődleges szinkronizáló jel a cella ID szektor ($N_{ID}^{(2)}$) dekódolására alkalmas az UE számára.
+A jel segítségével az UE meghatározhatja a mintavételezés frekvenciájéának hibáját, és helyreállíthatja a későbbi jeleket vevőoldalon.
+
+Az 5G-NR PSS három különböző 127 szimbólumú m-szekvenciából áll amelyek 127 alvivőt használnak fel. A 3 lehetséges m-sorozat a következőféleképp van definiálva:
+
+\begin{align}
+    d_{PSS}(n) &= 1-2x(m)
+\end{align}
+
+ahol
+
+\begin{align}
+    m &= [n+43N_{ID}^{(2)}] \text{ mod } 127\\
+    x(i + 7) &= [x(i + 4) + x(i)] \text{ mod } 2
+\end{align}
+
+illetve
+
+\begin{align}
+    [x(6)\; x(5)\; x(4)\; x(3) \;x(2)\; x(1) \;x(0) ] &= [1 \;1\; 1\; 0\; 1\; 1\; 0]
+\end{align}
+
+\subsection{Secondary Synchronization Signal}
+
+5G NR hálózatokban az másodlagos szinkronizáló jel a cella ID csoport ($N_{ID}^{(1)}$) dekódolására alkalmas az UE számára.
+Az SSS-t követően a UE oldalon kiszámítható a pontos Cella ID a következő módon: $ N_{ID}^{cella} = 3 N_{ID}^{(1)} + N_{ID}^{(2)}$.
+
+Az 5G-NR SSS 355 különböző 127 szimbólumú gold-szekvenciából áll amelyek 127 alvivőt használnak fel. A 355 lehetséges gold-sorozat a következőféleképp van definiálva:
+
+\begin{align}
+    d_{SSS}(n) &= [1 - 2 x_0 ([n + m_0] \text{ mod } 127)][1 - 2 x_1 ([n + m_2] \text{ mod } 127)]
+\end{align}
+
+ahol
+
+\begin{align}
+    m_0 &= 15[\frac{N_{ID}^{(1)}}{112}] + 5 N_{ID}^{(2)}\\
+    m_1 &= N_{ID}^{(1)}  \text{ mod } 112, 0 \leq n < 127\\
+    x_0 (i + 7) &= [x_0 (i + 4) + x_0 (i)] \text{ mod } 2\\
+    x_1 (i + 7) &= [x_1 (i + 4) + x_1 (i)] \text{ mod } 2\\
+    [x_0(6) \; &x_0(5) \;  x_0(4) \;  x_0(3) \;  x_0(2) \;  x_0(1)  \; x_0(0) ]\\
+     &= [0 \;  0 \;  0 \;  0  \; 0  \; 0 \;  1] 
+\end{align}
+
+illetve
+
+\begin{align}
+    [x_1(6) \;x_1(5)\; x_1(4)\; x_1(3)\; x_1(2)\; x_1(1)\; x_1(0) ] &= [0\; 0\; 0\; 0\; 0\; 0\; 1]
+\end{align}
+
+\section{Szinkronizáció PSS-sel}
+
+A Témalaboratórium tárgy keretei között egy OFDM rendszer előnyös tulajdonságaival foglalkoztam egy egyvivős modulációs rendszerrel szemben.
+Az OFDM egyik előnye, hogy úgynevezett pilot-vivők (segédvivők) segítségével a vevőoldalon hatékonyan tudjuk becsülni a csatorna átviteli karakterisztikáját, amellyel a vett jelet kompenzálni tudjuk.
+Másik előnye az OFDM-nek, hogy ciklikus előtagot alkalmaz, vagyis minden szimbólum végét az elejére másolja a védőidő helyére, ez a szimbólumváltás tranziensét hivatott csökkenteni, azonban az OFDM szimbólumok kezdetét is megtalálhatjuk, ha a vett jelben ismétlődéseket keresünk.
+
+Az 5G NR rendszerben a vevő szinkronizációja a megadott szinkronizációs jelek (PSS és SSS) dekódolásával történik.
+A felhasználói készülék ezeket a jeleket felhasználva képes a hálózatra kapcsolódni.
+
+\subsection{A vett jelek matematikai leírása}
+
+Legyen $ r(n) $ egy ideálisan vett és mintavételezett jel vevőoldalon.
+
+\begin{align}
+    r(n) &= s(n) \ast h(n) + w(n)\\
+    r_{\epsilon} (n) &= [s(n) \ast h(n) + w(n)] exp(\frac{j 2 \pi n }{N_{FFT}} \epsilon) \label{eq:frekhiba}
+\end{align}
+
+$\epsilon$ a normalizált frekvenciahiba, amelyet egész és tört komponensekre tudunk bontani.
+
+\subsection{Szinkronizációs algoritmus}
+
+Mivel $\epsilon$ egészrésze valójában egy egésszel való eltolást okoz a vett jel időtartoményi reprezentációjában, ezért azt könnyen figyelmen hagyhatjuk.
+Legyen $ \hat{\theta} $ a PSS-hez tartozó időpont becslője, $ \hat{i} $ pedig cella ID szektor becslője ($ \hat{i} \in {0, 1, 2} $).
+
+Ezt a két ismeretlent a következő módon becsülhetjük:
+
+\begin{equation}
+    (\hat{\theta},  \hat{i}) = arg max (C(\theta, i))
+\end{equation}
+
+Ahol $ C(\theta, i) $ a keresztkorrelációt jelöli, mégpedig:
+
+% \begin{equation}
+%     C(\theta, i) = \frac{ \vert \sum_{k=0}^{N_{FFT} - 1} r(\theta + k) p_i^\ast (k) \vert }{\sum_{k=0}^{N_{FFT} - 1} \vert r(\theta + k) \vert^2 }
+% \end{equation}
+
+\begin{equation}
+    C(\theta ,i)=\frac { \left |{\sum \limits _{k=0}^{N_{_{\text {FFT}}}-1}{r(\theta +k) p_{i}^{*}(k)}}\right |}{\sum \limits _{k=0}^{N_{_{\text {FFT}}}-1}{ \left |{r(\theta +k)}\right |^{2}}}
+\end{equation} 
+
+Ahol $r(\theta + k)$ a vett késő jelet jelöli, $ p_i (k) $ az $i$-edik cella ID szektor PSS jelének időtartománybeli alakja, $N_{FFT}$ pedig a CP nélküli mintaszám.
+Ebben az esetben A frekvencia törtrészére a következő becslést adhatjuk:
+
+% \begin{align}
+%     \hat {\epsilon }_{_{F}}=&\frac {1}{\pi } \angle \Bigg (\left[{ \sum \limits _{k=0}^{N_{_{\text {FFT}}}/2-1}{r(\hat {\theta }+k) p_{\hat {i}}^{*}(k)}}\right]^{^{*}} \\&\qquad \times \left[{ \sum \limits _{k=N_{_{\text {FFT}}}/2}^{N_{_{\text {FFT}}}-1}{r(\hat {\theta }+k) p_{\hat {i}}^{*}(k)}}\right] \Bigg)
+% \end{align} 
+
+\begin{equation}
+    \hat {\epsilon }_{_{F}}=\frac {1}{\pi } \angle \Bigg (\left[{ \sum \limits _{k=0}^{N_{_{\text {FFT}}}/2-1}{r(\hat {\theta }+k) p_{\hat {i}}^{*}(k)}}\right]^{^{*}}  \times \left[{ \sum \limits _{k=N_{_{\text {FFT}}}/2}^{N_{_{\text {FFT}}}-1}{r(\hat {\theta }+k) p_{\hat {i}}^{*}(k)}}\right] \Bigg) \label{eq:hibabecsles}
+\end{equation} 
+
+\subsection{Magyarázat}
+
+A vevőoldalon (UE) az eszközben található oszcillátor hibája nagyban befolyásolja a vétel minőségét, és mivel GHz feletti tartományban mozgunk, ezért a frekvenciahiba a jelet elrontja.
+Ezt a hibát reprezentálja a \ref{eq:frekhiba} képletben szereplő exponenciális tag.
+Gyakorlatilag a mintavételi frekvencia hibája egy folytonos fázishibaként fogható fel a jelben, és pont ez teszi lehetővé, hogy a hibát becsüljük.
+
+Mivel a szinkronizációs jelek ismertek, ezért a vevőoldalon a vett jelet keresztkorrelálva az ismert PSS szekvenciákkal megtalálhatjuk a PSS szimbólum kezdetét.
+Mivel tudjuk, hogy melyik PSS szimbólum keresztkorrelációja adja a legnagyobb korrelációs együtthatót, így a Cella ID szektort is megállapíthatjuk.
+
+Végezetül már csak arra van szükségünk, hogy a vett PSS szimbólum és az eredeti PSS szimbólum különbségéből a frekvenciahibát megállapítsuk, amelyet szintén a keresztkorreláció eredményének fázisa mutat meg (lásd \ref{eq:hibabecsles} képlet).
+A \ref{eq:hibabecsles} képlet alapja, hogy a PSS szimbólum első felének korrelációs együtthatójának fázisát és a második felének korrelációs  együtthatójának fázisából megkaphatjuk, hogy a PSS szimbólum átvitele alatt mennyit változott a fáziskülönbség, amelyből a frekvenciahibát kiszámíthatjuk (Fontos, hogy az eredmény a normalizált frekvenciahibát adja meg, tehát független az alkalmazott 5G numerológiától).
+
+\section{SSS dekódolása}
+
+Miután megmértük a helyi frekvenciahibát, és abból visszaállítottuk az eredeti jelet, a másodlagos szinkronizációs jelet kell dekódolni.
+Az összes lehetséges SSS definiálva van a vevő számára, és a jel kezdete is ismert, ha a PSS helyét már ismerjük.
+
+A dekódolás a PSS-hez hasonlóan keresztkorreláció számítással történik, azonban ennek magasabb erőforrás igénye van, hiszen nagyságrendekkel több lehetséges SSS jellel kell korreláltatni a vett jelet, hogy a valódit megtaláljuk.

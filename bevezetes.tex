@@ -5,22 +5,31 @@
 A Budapesti Műszaki és Gazdaságtudományi Egyetem Villamosmérnöki és Informatikai karán a villamosmérnök alapszak 5. félévében Témalaboratórium tantárgyat hirdetnek.
 Ez a tantárgy egy olyan projekttárgy, amely a hallgatók számára lehetővé teszi, hogy valamilyen területen elmélyedjenek, és közösen dolgozzanak egy témavezetővel, ezzel tapasztalatot nyújtva számukra, a későbbi Önálló laboratórium és Szakdolgozat készítés tárgyakhoz.
 
-Én az 5. félévemben a Témalaboratórium keretei között Dr. Horváth Bálint Péter témavezetésével folytattam egyéni munkát, amely során egy OFDM (Orthogonal Frequency Division Multiplexing - Ortogonális Frekvenciaosztásos Nyalábolás) rendszert modelleztem. A munka során Python nyelvben készítettem el egy digitális jelátvitel rendszer modelljét, amelyben az adót, a vevőt, és köztük az átviteli csatorna volt a 3 legfőbb elem. Munkám során azt vizsgáltam, hogy miképp tud egy ilyen OFDM rendszer védekezni a többutas terjedés problémái ellen, milyen lehetőségek vannak a vett jel kompenzálására, vagy az átvitel minőségének mérésére.
+Én az 5. félévemben a Témalaboratórium keretei között Dr. Horváth Bálint Péter témavezetésével folytattam egyéni munkát, amely során egy OFDM (Orthogonal Frequency Division Multiplexing - Ortogonális Frekvenciaosztásos Nyalábolás) rendszert modelleztem.
+A munka során Python nyelvben készítettem el egy digitális jelátvitel rendszer modelljét, amelyben az adót, a vevőt, és köztük az átviteli csatorna volt a 3 legfőbb elem.
+Munkám során azt vizsgáltam, hogy miképp tud egy ilyen OFDM rendszer védekezni a többutas terjedés problémái ellen, milyen lehetőségek vannak a vett jel kompenzálására, vagy az átvitel minőségének mérésére.
 
 Az eredmények részletes tárgyalása nem része ennek a dolgozatnak, de az eredményeket is és a tanultakat is felhasználtam a féléves munkámban.
 
+\section{Feladat rövid összefoglalása}
+
+A feladatom az volt, hogy az 5G OFDMA rendszerek szinkronizációs eljárásait vizsgáljam implementációs oldalról. 
+Erre azért van szükség, mert a rendszert leíró szabványok csak a szinkronizációs fejléceket specifikálják, vagyis azt, hogy mik a BS-ek által sugárzott szinkronizációs jelek, hogy hordozzák a megfelelő információt, azt már nem, hogy ezeket hogyan dekódolhatjuk UE oldalról.
+
+A jelek dekódolása számítástechnikailag nem nehéz feladat, azonban a valóságban ezeket a jelátviteleket különböző frekvencia- és időhibák terhelik.
+Előbbi származhat az eszközök egymáshoz viszonyított mozgásából a Doppler hatásnak megfelelően, vagy a készülékek helyi oszcillátorából (ez jellemzően egy nagyobb hibát eredményez, ezért a munkámban ezt veszem figyelembe), míg utóbbi forrása a jelek terjedési ideje, valamit az, hogy a telefont nem tudjuk az OFDMA rendszerünkön belül értelmezett $ t = 0 $ időpillanatban bekapcsolni, ezért a mintavételezés nem azonos fázisban történik.
+
+A készülék helyi oszcillátorának frekvenciahibáját megadhatjuk abszolút értékben ($ \Delta f = 15 \text{ Hz}$), megadhatjuk egy relatív egységben ($\Delta f = 50 \text{ ppm}$ - parts per million = $10^{-6}$) vagy normalizált egységben is, amely azt jelenti, hogy a frekvenciahibát az alvivő távolsághoz viszonyítva adjuk meg.
+A jelfeldolgozás szakirodalmában jellemzően ezzel érdemes számolni, mert így az eredmények összevethetők az 5G numerológiától függetlenül (5G numerológiának nevezzük a rendszer változtatható alvivőtávolságát.).
+
 \section{OFDM és OFDMA}
 
-Az OFDM és az OFDMA (Orthogonal Frequency Division Multiple Access) rendszerek között egy apró különbség van. Míg egy OFDM rendszerben egy adó és egy vevő közötti kommunikáció valósul meg több vivőfrekvencián, addig az OFDMA rendszerben a kommunikáció egy vagy több adó és egy vagy több vevő között valósul meg. Ez számomra nem volt evidens, a tanulmányaim során eddig a kettőt összemosták.
+Az OFDM és az OFDMA (Orthogonal Frequency Division Multiple Access) rendszerek között egyetlen különbség van.
+Míg egy OFDM rendszerben egy adó és egy vevő közötti kommunikáció valósul meg több vivőfrekvencián, addig az OFDMA rendszerben a kommunikáció egy vagy több adó és egy vagy több vevő között valósul meg.
+Ez számomra nem volt evidens, a tanulmányaim során eddig a kettőt összemosták.
 
 Az OFDM előnyeit könnyedén kihasználhatjuk többszörös hozzáférési rendszerekben is.
 Így nevezzük azokat a rendszereket, amelyekben egyszerre párhuzamosan több jelátvitel valósul meg.
 Ezt megtehetjük a frekvenciatartománybeli szétválasztással, lásd a GSM uplink és downlink kapcsolat, ahol két teljesen elkülönülő frekvenciatartományt vesz igénybe a kétfajta átvitel. 
 Ugyanez a hatás elérhető, ha az átviteli médiumot valamilyen időosztásban osztjuk fel a felhasználók között. 
 Van olyan módszer is, amellyel időben és frekvenciában is egyszerre oldhatjuk meg az ütközéseket, ha megfelelően kódoljuk az átvinni kívánt jelet.
-
-\section{OFDMA kihívásai}
-
-xdxd
-
-\section{Munkám}
